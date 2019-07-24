@@ -16,7 +16,7 @@ class ViewController: UIViewController , UITextFieldDelegate, UIImagePickerContr
         @IBOutlet weak var mealNameLabel:  UILabel!
         @IBOutlet weak var photoImageView: UIImageView!
         @IBOutlet weak var ratingControl:  RatingControl!
-        @IBOutlet weak var saveButton:  UIBarButtonItem!
+        @IBOutlet weak var saveButton:     UIBarButtonItem!
     
         /*
         This value is either passed by `MealTableViewController` in `prepare(for:sender:)`

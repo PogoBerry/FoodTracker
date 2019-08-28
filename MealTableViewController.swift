@@ -13,7 +13,6 @@ import os.log
 class MealTableViewController: UITableViewController {
     
     //MARK: Properties
-    
     var meals = [Meal] ()
     
     override func viewDidLoad() {
@@ -72,8 +71,6 @@ class MealTableViewController: UITableViewController {
         return true
     
     } // tableView
-    
-
     
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -168,23 +165,30 @@ class MealTableViewController: UITableViewController {
         
     } // loadSampleMeals
     
-    // look at method in charge of archiving data to phone storage
+    // Saves the Book data added by the user to phone storage
     private func saveMeals() {
-        // let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
         
-        guard let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false) else {
+        // guard let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false) else {
             
             // fatalError("Failed to archive data.")
-                os_log("Failed to save meals...", log: OSLog.default, type: .error)
+            //os_log("Failed to save meals...", log: OSLog.default, type: .error)
             
-            } // else
+            //return
+            
+        // } // else
         
-        
-        
-        // Must make it so this is reported to terminal if isSuccessfulSave succeeds in archiving meals data
-        os_log("Meals successfully saved.", log: OSLog.default, type: .debug)
+        let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false)
         
     } // saveMeals
+    
+    // Functions the same as the saveMeals function, but this returns the saved data to be used for the loadMeals function
+    private func returnMeals () -> Data? {
+        
+        let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false)
+        
+        return isSuccessfulSave
+        
+    } // returnMeals
     
     //MARK: Actions
     @IBAction func unwindToMealList(sender: UIStoryboardSegue) {
@@ -202,6 +206,7 @@ class MealTableViewController: UITableViewController {
             } // if
             
             else {
+                
                 // Add a new meal.
                 let newIndexPath = IndexPath(row: meals.count, section: 0)
                 
@@ -216,16 +221,18 @@ class MealTableViewController: UITableViewController {
         
     } // unwindToMealList
     
+    // Loads the User's meals that were saved with the returnMeals function
     private func loadMeals() -> [Meal]? {
         // return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
         
-        guard let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false)  else {
+        // guard let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false)  else {
             
-           os_log("Failed to save meals...", log: OSLog.default, type: .error)
-            
-        } // else
+          // os_log("Failed to save meals...", log: OSLog.default, type: .error)
+           
+            // return
+       // } // else
         
-        return try! NSKeyedUnarchiver.unarchivedObject(ofClasses: [MealTableViewController.self, Meal.self], from: isSuccessfulSave) as! [Meal]
+        return try! NSKeyedUnarchiver.unarchivedObject(ofClasses: [MealTableViewController.self, Meal.self], from: returnMeals()!) as! [Meal]
     
     } // loadMeals
     

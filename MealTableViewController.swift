@@ -15,7 +15,7 @@ class MealTableViewController: UITableViewController {
     //MARK: Properties
     
     var meals = [Meal] ()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -33,6 +33,7 @@ class MealTableViewController: UITableViewController {
             loadSampleMeals()
         
         } // else
+        
         // Load the sample data.
         loadSampleMeals()
     
@@ -167,14 +168,22 @@ class MealTableViewController: UITableViewController {
         
     } // loadSampleMeals
     
+    // look at method in charge of archiving data to phone storage
     private func saveMeals() {
-        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
-        if isSuccessfulSave {
-            os_log("Meals successfully saved.", log: OSLog.default, type: .debug)
-        } else {
-            os_log("Failed to save meals...", log: OSLog.default, type: .error)
-        }
-    
+        // let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
+        
+        guard let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false) else {
+            
+            // fatalError("Failed to archive data.")
+                os_log("Failed to save meals...", log: OSLog.default, type: .error)
+            
+            } // else
+        
+        
+        
+        // Must make it so this is reported to terminal if isSuccessfulSave succeeds in archiving meals data
+        os_log("Meals successfully saved.", log: OSLog.default, type: .debug)
+        
     } // saveMeals
     
     //MARK: Actions
@@ -208,7 +217,15 @@ class MealTableViewController: UITableViewController {
     } // unwindToMealList
     
     private func loadMeals() -> [Meal]? {
-        return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
+        // return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
+        
+        guard let isSuccessfulSave = try? NSKeyedArchiver.archivedData(withRootObject: meals,requiringSecureCoding: false)  else {
+            
+           os_log("Failed to save meals...", log: OSLog.default, type: .error)
+            
+        } // else
+        
+        return try! NSKeyedUnarchiver.unarchivedObject(ofClasses: [MealTableViewController.self, Meal.self], from: isSuccessfulSave) as! [Meal]
     
     } // loadMeals
     
